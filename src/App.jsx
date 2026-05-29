@@ -2,36 +2,22 @@ import { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'react-bootstrap';
 
-function InfoText({ number }) {
-  let text1 = '';
-  let text2 = '';
-  let tempNumber = number;
-
-  if (number < 0 || number) {
-    text1 = 'You have drunk 0 glass(es) of water today.';
-    text2 = 'Please enter a valid number of glasses.';
-  } else if (number < 8) {
-    text1 = 'You have drunk ' + number + ' glass(es) of water today.';
-    text2 =
-      'Keep going! You need ' +
-      (8 - tempNumber) +
-      ' more glass(es) to reach your goal.';
-  } else if (number >= 8) {
-    text2 = 'Great job! You reached your daily goal.';
-  }
-  return (
-    <>
-      <p className="text-center">{text1}</p>
-      <p className="text-center">{text2}</p>
-    </>
-  );
-}
-
 function App() {
   const [number, setNumber] = useState(0);
+  const [inputValue, setInputValue] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
 
   function addNumber() {
-    setNumber(number + 1);
+    const parseNumber = parseInt(inputValue);
+    if (!parseNumber || isNaN(parseNumber) || parseNumber < 1) {
+      setErrorMessage("Please enter a valid number of glasses.");
+      return;
+    }
+
+    setErrorMessage('');
+
+    setNumber(number + parseNumber);
+    setInputValue('');
   }
 
   return (
@@ -39,18 +25,22 @@ function App() {
       <h1 className="text-center">Daily Water Tracker</h1>
       <div className="container">
         <div className="d-flex justify-content-center">
-          <label className="mx-2" for="water-drank">
-            Glasses of water drank:{' '}
+          <label className="mx-2" htmlFor="water-drank">
+            Glasses of water drank:
           </label>
-          <input type="number" min="1" />
+          <input id="water-drank" type="number" min="1" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
         </div>
         <div className="d-flex justify-content-center my-3">
-          <Button variant="primary" onClick={addNumber}>
+          <Button variant="primary" value={inputValue} onClick={addNumber}>
             Add
           </Button>
         </div>
       </div>
-      <InfoText number={number} />
+      <p className="text-center text-danger">{errorMessage}</p>
+      <p className="text-center">You have drunk {number} glass(es) of water today.</p>
+      <p className="text-center">
+        {number >= 8 ? ("Great job! You reached your daily goal.") : (`Keep going! You need ${8 - number} more glass(es) to reach your goal.`)}
+      </p>
     </>
   );
 }
